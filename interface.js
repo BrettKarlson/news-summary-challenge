@@ -1,30 +1,31 @@
 //url for guardian politics headlines: 
 //https://news-summary-api.herokuapp.com/guardian?apiRequestUrl=http://content.guardianapis.com/search?q=politics
-function createHeadlines() {
-  fetch('https://news-summary-api.herokuapp.com/guardian?apiRequestUrl=http://content.guardianapis.com/search?q=politics')
-    .then(response => {
-      console.log(response);
-      return response.json();
-    })
-    .then(data => {
-      let newsContainer = document.getElementById('newsTitle');
-      let newsArray = data.response.results
-      console.log(newsArray);
-      for(let i = 0; i < newsArray.length; i++) {
-        let newsStory = `<a class='title' data-newsID="${i}" href="${newsArray[i].webUrl}">${newsArray[i].webTitle}</a></br>`
-        newsContainer.innerHTML += newsStory
+document.addEventListener("DOMContentLoaded", () => {
+  function createHeadlines(callback) {
+      fetch("http://content.guardianapis.com/search?q=politics&show-fields=thumbnail&api-key=test")
+      .then(response => response.json())
+      .then(data => callback(data.response.results))
+      .catch(error => console.error(error))
+    }
+
+
+  function displayHeadLines(){
+    createHeadlines((results) => {
+      for(let i = 0; i < results.length; i++) {
+        let id = results[i].id
+        let webTitle = results[i].webTitle
+        let imgSrc = results[i].fields.thumbnail
       }
     })
-    .catch(error => console.error(error));
-}
-createHeadlines();
+  }
+
+  displayHeadLines()
 
 function getSummary(webUrl, callback) {
      fetch(`http://news-summary-api.herokuapp.com/aylien?apiRequestUrl=https://api.aylien.com/api/v1/summarize?url=${webUrl}`)
     .then(response => response.json())
     .then(data => callback(data.sentences))
 }
-
 
 window.addEventListener("hashchange", () => {
   document.querySelector("#headlines").innerHTML = ''
@@ -33,4 +34,5 @@ window.addEventListener("hashchange", () => {
     let summary = sentences.join(" ")
     document.querySelector("#summary").innerText = summary
   })
+})
 })
